@@ -1,25 +1,67 @@
+import tkinter as tk
+
+# create window
+window = tk.Tk()
+window.title("🌸 Priya's Sticky Note 🌸")
+
+# sticky note size
+window.geometry("260x320")
+
+# disable resizing
+window.resizable(False, False)
+
+# sticky note pink color
+window.configure(bg="#ffd6e7")
+
 tasks = []
 
-print("🌸 Priya's Cute To-Do List 🌸")
+# title label
+title = tk.Label(
+    window,
+    text="My Tasks ✨",
+    bg="#ffd6e7",
+    font=("Arial", 14, "bold")
+)
+title.pack(pady=10)
 
-while True:
+# input box
+entry = tk.Entry(
+    window,
+    width=22,
+    font=("Arial", 10)
+)
+entry.pack(pady=5)
 
-    print("\n1. Add task")
-    print("2. View tasks")
-    print("3. Exit")
+# function to add task
+def add_task():
 
-    choice = input("Choose an option: ")
+    task = entry.get()
 
-    if choice == "1":
-        task = input("Enter a new task: ")
+    if task != "":
         tasks.append(task)
 
-    elif choice == "2":
-        print("\n✨ Your Tasks ✨")
+        label = tk.Label(
+            window,
+            text="☐ " + task,
+            bg="#ffd6e7",
+            anchor="w",
+            font=("Arial", 10)
+        )
 
-        for task in tasks:
-            print("☐", task)
+        label.pack(fill="x", padx=20, pady=2)
 
-    elif choice == "3":
-        print("Goodbye 🌸")
-        break
+        entry.delete(0, tk.END)
+
+# add task button
+button = tk.Button(
+    window,
+    text="Add Task",
+    command=add_task,
+    bg="#ff9ecb",
+    relief="flat"
+)
+
+button.pack(pady=10)
+
+# run window
+window.mainloop()
