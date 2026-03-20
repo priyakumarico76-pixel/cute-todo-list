@@ -7,6 +7,8 @@ A small aesthetic sticky-note style to-do list app built using Python and Tkinte
 - Cute pink sticky note design
 - Simple GUI
 - Beginner friendly project
+- add custom backgrounds
+- delete selected tasks
 
 ## Built With
 Python  
