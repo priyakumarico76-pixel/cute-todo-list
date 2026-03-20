@@ -1,0 +1,159 @@
+import tkinter as tk
+from tkinter import filedialog
+from PIL import Image, ImageTk
+import json
+
+# ---------- WINDOW ----------
+window = tk.Tk()
+window.title("🌸 Sticky Note")
+window.geometry("220x280")
+window.configure(bg="#ffe4ec")
+window.resizable(False, False)  # 🚫 NO RESIZING
+
+tasks = []
+
+# ---------- BACKGROUND ----------
+bg_label = tk.Label(window, bg="#ffe4ec")
+bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+def change_bg():
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        img = Image.open(file_path)
+        img = img.resize((220, 280))
+        photo = ImageTk.PhotoImage(img)
+
+        bg_label.config(image=photo)
+        bg_label.image = photo
+
+# ---------- MAIN FRAME ----------
+frame = tk.Frame(window, bg="#ffd6e7")
+frame.pack(pady=15)
+
+# ---------- ENTRY ----------
+entry = tk.Entry(
+    frame,
+    width=18,
+    font=("Arial", 10),
+    bd=0,
+    highlightthickness=1,
+    highlightbackground="#ffb6c1"
+)
+entry.pack(pady=6)
+entry.focus_set()
+
+# ---------- PRIORITY ----------
+priority_var = tk.StringVar(value="Medium 🌸")
+priority_menu = tk.OptionMenu(frame, priority_var, "High 🔥", "Medium 🌸", "Low 🌿")
+priority_menu.config(bg="#ffd6e7", font=("Arial", 9), bd=0)
+priority_menu.pack(pady=3)
+
+# ---------- SAVE ----------
+def save_tasks():
+    data = []
+    for t in tasks:
+        data.append({
+            "text": t["text"],
+            "done": t["var"].get(),
+            "priority": t["priority"]
+        })
+    with open("tasks.json", "w") as f:
+        json.dump(data, f)
+
+# ---------- LOAD ----------
+def load_tasks():
+    try:
+        with open("tasks.json", "r") as f:
+            data = json.load(f)
+            for item in data:
+                create_task(item["text"], item["priority"], item["done"])
+    except:
+        pass
+
+# ---------- CREATE TASK ----------
+def create_task(text, priority, done=False):
+    var = tk.BooleanVar(value=done)
+
+    color = {
+        "High 🔥": "#ff4d6d",
+        "Medium 🌸": "#ff8fab",
+        "Low 🌿": "#52b788"
+    }[priority]
+
+    row = tk.Frame(frame, bg="#ffd6e7")
+    row.pack(anchor="w", pady=2)
+
+    cb = tk.Checkbutton(
+        row,
+        text=text,
+        variable=var,
+        fg=color,
+        bg="#ffd6e7",
+        font=("Arial", 9),
+        bd=0,
+        highlightthickness=0
+    )
+    cb.pack(side="left")
+
+    def toggle():
+        if var.get():
+            cb.config(fg="gray", font=("Arial", 9, "overstrike"))
+        else:
+            cb.config(fg=color, font=("Arial", 9))
+        save_tasks()
+
+    var.trace_add("write", lambda *args: toggle())
+
+    # 💖 SMALL CLEAN DELETE (NOT BUTTON)
+    del_btn = tk.Label(
+        row,
+        text="✖",
+        fg="#ff6b81",
+        bg="#ffd6e7",
+        font=("Arial", 10),
+        cursor="hand2"
+    )
+    del_btn.pack(side="right", padx=4)
+
+    def delete_task(event):
+        row.destroy()
+        tasks.remove(task_obj)
+        save_tasks()
+
+    del_btn.bind("<Button-1>", delete_task)
+
+    task_obj = {
+        "text": text,
+        "var": var,
+        "priority": priority,
+        "widget": row
+    }
+
+    tasks.append(task_obj)
+    save_tasks()
+
+# ---------- ADD TASK ----------
+def add_task(event=None):
+    text = entry.get().strip()
+    if text != "":
+        create_task(text, priority_var.get())
+        entry.delete(0, tk.END)
+
+entry.bind("<Return>", add_task)
+
+# ---------- BUTTON ----------
+bg_btn = tk.Button(
+    frame,
+    text="🎀 BG",
+    command=change_bg,
+    font=("Arial", 9),
+    bg="#ffb6c1",
+    bd=0
+)
+bg_btn.pack(pady=5)
+
+# ---------- LOAD ----------
+load_tasks()
+
+# ---------- RUN ----------
+window.mainloop()
